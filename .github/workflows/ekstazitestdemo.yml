@@ -23,8 +23,8 @@ jobs:
         run: |
           # Loop through the list of projects (adjust these values accordingly)
           projects=(
-            "group1 project1 1.0.0"
-            "group2 project2 2.0.0"
+            "org.spark-project.hive hive-service 0.13.1"
+            "org.kaazing robot.all 0.0.0.10"
           )
 
           for project in "${projects[@]}"; do
