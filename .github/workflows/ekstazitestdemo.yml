@@ -36,30 +36,22 @@ jobs:
             # Create project
             mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
-            # Modify pom.xml - replace existing content with the desired content
-            cat <<EOF > "$artifact_id/pom.xml"
-<project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>$group_id</groupId>
-  <artifactId>$artifact_id</artifactId>
-  <version>$version</version>
-  
-  <build>
-    <pluginManagement><!-- lock down plugins versions ... -->
-      <!-- ... your plugins ... -->
-    </pluginManagement>
-  </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>example.group</groupId>
-      <artifactId>example-artifact</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <!-- ... other dependencies ... -->
-  </dependencies>
-</project>
-EOF
+            # Append build section and dependencies to pom.xml
+            echo '
+            <build>
+              <pluginManagement>
+                <!-- ... existing plugins ... -->
+              </pluginManagement>
+            </build>
+            <dependencies>
+              <dependency>
+                <groupId>example.group</groupId>
+                <artifactId>example-artifact</artifactId>
+                <version>1.0.0</version>
+              </dependency>
+              <!-- ... other dependencies ... -->
+            </dependencies>
+            ' >> "$artifact_id/pom.xml"
 
             # Test with Ekstazi
             cd "$artifact_id"
