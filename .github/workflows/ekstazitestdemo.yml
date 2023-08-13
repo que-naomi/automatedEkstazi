@@ -23,8 +23,8 @@ jobs:
         run: |
           # Loop through the list of projects (adjust these values accordingly)
           projects=(
-            "org.spark-project.hive hive-service 0.13.1"
-            "org.kaazing robot.all 0.0.0.10"
+            "org.easyb easyb 0.7"
+            "edu.vt.middleware vt-ldap 3.3.1"
           )
 
           for project in "${projects[@]}"; do
@@ -36,22 +36,30 @@ jobs:
             # Create project
             mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
-            # Add build section and dependencies to pom.xml
-            echo "
-            <build>
-              <pluginManagement>
-                <!-- ... existing plugins ... -->
-              </pluginManagement>
-            </build>
-            <dependencies>
-              <dependency>
-                <groupId>example.group</groupId>
-                <artifactId>example-artifact</artifactId>
-                <version>1.0.0</version>
-              </dependency>
-              <!-- ... other dependencies ... -->
-            </dependencies>
-            " >> "$artifact_id/pom.xml"
+            # Modify pom.xml - replace existing content with the desired content
+            cat <<EOF > "$artifact_id/pom.xml"
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>$group_id</groupId>
+  <artifactId>$artifact_id</artifactId>
+  <version>$version</version>
+  
+  <build>
+    <pluginManagement><!-- lock down plugins versions ... -->
+      <!-- ... your plugins ... -->
+    </pluginManagement>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>example.group</groupId>
+      <artifactId>example-artifact</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+    <!-- ... other dependencies ... -->
+  </dependencies>
+</project>
+EOF
 
             # Test with Ekstazi
             cd "$artifact_id"
