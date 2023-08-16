@@ -1,59 +1,52 @@
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.nio.file.Paths;
 
 public class PomFileUpdater {
-
     public static void main(String[] args) {
-        if (args.length < 3) {
-            System.err.println("Usage: PomFileUpdater <path> <groupId> <artifactId> <version>");
-            System.exit(1);
-        }
+        String groupId = args[0];
+        String artifactId = args[1];
+        String version = args[2];
 
-        String path = args[0];
-        String groupId = args[1];
-        String artifactId = args[2];
-        String version = args[3];
+        updatePomXml(groupId, artifactId, version);
+    }
 
-        try (Stream<Path> pomFiles = Files.walk(Path.of(path))) {
-            List<Path> pomFilePaths = pomFiles
-                .filter(p -> p.toString().endsWith("pom.xml") && !p.toString().contains("src/"))
-                .collect(Collectors.toList());
+    private static void updatePomXml(String groupId, String artifactId, String version) {
+        Path pomFilePath = Paths.get("pom.xml");
 
-            for (Path pomFilePath : pomFilePaths) {
-                updatePomFile(pomFilePath, groupId, artifactId, version);
-            }
+        try {
+            String pomContent = Files.readString(pomFilePath);
+            String updatedPomContent = addBuildAndDependency(pomContent, groupId, artifactId, version);
 
+            Files.write(pomFilePath, updatedPomContent.getBytes());
+            System.out.println("Updated pom.xml successfully.");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void updatePomFile(Path pomFilePath, String groupId, String artifactId, String version) {
-        try {
-            List<String> lines = Files.readAllLines(pomFilePath);
-            List<String> updatedLines = lines.stream()
-                .map(line -> {
-                    if (line.contains("<dependencies>")) {
-                        line = "      <dependency>\n"
-                                + "        <groupId>" + groupId + "</groupId>\n"
-                                + "        <artifactId>" + artifactId + "</artifactId>\n"
-                                + "        <version>" + version + "</version>\n"
-                                + "      </dependency>";
-                    }
-                    return line;
-                })
-                .collect(Collectors.toList());
+    private static String addBuildAndDependency(String pomContent, String groupId, String artifactId, String version) {
+        String buildAndDependency = "<build>\n" +
+                "  <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->\n" +
+                "    <!-- ... existing plugins ... -->\n" +
+                "  </pluginManagement>\n" +
+                "</build>\n" +
+                "<dependencies>\n" +
+                "  <!-- ... existing dependencies ... -->\n" +
+                "  <dependency>\n" +
+                "    <groupId>" + groupId + "</groupId>\n" +
+                "    <artifactId>" + artifactId + "</artifactId>\n" +
+                "    <version>" + version + "</version>\n" +
+                "  </dependency>\n" +
+                "</dependencies>";
 
-            Files.write(pomFilePath, updatedLines);
-            System.out.println("Updated: " + pomFilePath);
+        int dependenciesStart = pomContent.indexOf("<dependencies>");
+        int dependenciesEnd = pomContent.indexOf("</dependencies>") + "</dependencies>".length();
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        StringBuilder updatedPomContent = new StringBuilder(pomContent);
+        updatedPomContent.insert(dependenciesEnd, buildAndDependency);
+
+        return updatedPomContent.toString();
     }
 }
