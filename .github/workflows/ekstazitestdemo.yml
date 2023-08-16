@@ -51,4 +51,4 @@ jobs:
           done
 
       - name: Clean up
-        run: rm -f PomFileUpdater.class
+        run: rm -f src/main/java/com/example/PomFileUpdater.class
