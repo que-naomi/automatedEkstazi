@@ -49,6 +49,3 @@ jobs:
             mvn ekstazi:ekstazi
             cd ..
           done
-
-      - name: Clean up
-        run: rm -f src/main/java/com/example/PomFileUpdater.class
