@@ -20,7 +20,7 @@ jobs:
           java-version: '11'
 
       - name: Compile Java program
-        run: javac PomFileUpdater.java
+        run: javac src/main/java/com/example/PomFileUpdater.java
 
       - name: Generate, Update Pom.xml, and Test Projects with Ekstazi
         run: |
