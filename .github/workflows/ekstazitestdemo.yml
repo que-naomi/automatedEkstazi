@@ -19,18 +19,18 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
+      - name: Compile Java program
+        run: javac automatedEkstazi/src/main/java/com/example/PomFileUpdater.java
+
       - name: Generate, Update Pom.xml, and Test Projects with Ekstazi
         run: |
           # Loop through the list of projects (adjust these values accordingly)
           projects=(
-            #"org.easyb easyb 0.7"
-            #"edu.vt.middleware vt-ldap 3.3.1"
+            "org.easyb easyb 0.7"
+            "edu.vt.middleware vt-ldap 3.3.1"
             "org.apache.camel camel-csv 2.9.8"
             # Add more projects as needed
           )
-
-          # Compile the Java program
-          javac src/main/java/com/example/PomFileUpdater.java
 
           for project in "${projects[@]}"; do
             IFS=' ' read -ra project_info <<< "$project"
@@ -42,10 +42,13 @@ jobs:
             mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
             # Run Java program to update pom.xml
-            java src/main/java/com/example/PomFileUpdater "$artifact_id" "$group_id" "$artifact_id" "$version"
+            java -cp automatedEkstazi/src/main/java com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
 
             # Test with Ekstazi
             cd "$artifact_id"
             mvn ekstazi:ekstazi
             cd ..
           done
+
+      - name: Clean up
+        run: rm -f automatedEkstazi/src/main/java/com/example/PomFileUpdater.class
