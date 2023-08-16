@@ -1,4 +1,4 @@
-name: Test Projects with Ekstazi
+name: Automate Pom.xml Changes and Test with Ekstazi
 
 on:
   push:
@@ -6,20 +6,23 @@ on:
       - main
 
 jobs:
-  test:
+  automate_changes_and_test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Maven
+      - name: Set up Java
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: '11'
 
-      - name: Generate and Test Projects with Ekstazi
+      - name: Compile Java program
+        run: javac PomFileUpdater.java
+
+      - name: Generate, Update Pom.xml, and Test Projects with Ekstazi
         run: |
           # Loop through the list of projects (adjust these values accordingly)
           projects=(
@@ -38,84 +41,14 @@ jobs:
             # Create project
             mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
-            # Add build section and dependencies to pom.xml
-            echo "
-            <build>
-              <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
-                <plugins>
-                  <!-- clean lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#clean_Lifecycle -->
-                  <plugin>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.1.0</version>
-                  </plugin>
-                  <!-- default lifecycle, jar packaging: see https://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-                  <plugin>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.2</version>
-                  </plugin>
-                  <plugin>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.0</version>
-                  </plugin>
-                  <plugin>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.1</version>
-                  </plugin>
-                  <plugin>
-                    <groupId>org.ekstazi</groupId>
-                    <artifactId>ekstazi-maven-plugin</artifactId>
-                    <version>5.3.0</version> 
-                    <executions>
-                      <execution>
-                        <id>ekstazi</id>
-                        <goals>
-                          <goal>select</goal>
-                        </goals>
-                      </execution>
-                    </executions>
-                  </plugin>
-                  <plugin>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.2</version>
-                  </plugin>
-                  <plugin>
-                    <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
-                  </plugin>
-                  <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
-                  </plugin>
-                  <!-- site lifecycle, see https://maven.apache.org/ref/current/maven-core/lifecycles.html#site_Lifecycle -->
-                  <plugin>
-                    <artifactId>maven-site-plugin</artifactId>
-                    <version>3.7.1</version>
-                  </plugin>
-                  <plugin>
-                    <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.0.0</version>
-                  </plugin>
-                </plugins>
-              </pluginManagement>
-            </build>
-            <dependencies>
-              <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>3.8.1</version>
-                <scope>test</scope>
-              </dependency>
-              <dependency>
-                <groupId>$group_id</groupId>
-                <artifactId>$artifact_id</artifactId>
-                <version>$version</version>
-              </dependency>
-              <!-- ... other dependencies ... -->
-            </dependencies>
-            " | sed 's/^ *//g' >> "$artifact_id/pom.xml"
+            # Run Java program to update pom.xml
+            java PomFileUpdater "$artifact_id" "$group_id" "$artifact_id" "$version"
 
             # Test with Ekstazi
             cd "$artifact_id"
             mvn ekstazi:ekstazi
             cd ..
           done
+
+      - name: Clean up
+        run: rm -f PomFileUpdater.class
