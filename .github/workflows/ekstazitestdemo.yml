@@ -112,7 +112,7 @@ jobs:
               </dependency>
               <!-- ... other dependencies ... -->
             </dependencies>
-            " >> "$artifact_id/pom.xml"
+            " | sed 's/^ *//g' >> "$artifact_id/pom.xml"
 
             # Test with Ekstazi
             cd "$artifact_id"
