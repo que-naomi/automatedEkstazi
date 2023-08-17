@@ -20,7 +20,7 @@ jobs:
           java-version: '11'
 
       - name: Compile Java program
-        run: javac $GITHUB_WORKSPACE/automatedEkstazi/src/main/java/com/example/PomFileUpdater.java
+        run: javac src/main/java/com/example/PomFileUpdater.java
 
       - name: Generate, Update Pom.xml, and Test Projects with Ekstazi
         run: |
@@ -42,7 +42,7 @@ jobs:
             mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
             echo "Running Java program to update pom.xml"
-            java -cp "$GITHUB_WORKSPACE/automatedEkstazi/src/main/java" com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
+            java -cp "src/main/java" com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
 
             echo "Testing with Ekstazi"
             cd "$artifact_id"
