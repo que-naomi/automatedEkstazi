@@ -26,8 +26,8 @@ jobs:
         run: |
           # Loop through the list of projects (adjust these values accordingly)
           projects=(
-            "org.easyb easyb 0.7"
-            "edu.vt.middleware vt-ldap 3.3.1"
+            # "org.easyb easyb 0.7"
+            # "edu.vt.middleware vt-ldap 3.3.1"
             "org.apache.camel camel-csv 2.9.8"
             # Add more projects as needed
           )
@@ -42,7 +42,7 @@ jobs:
             mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
             # Run Java program to update pom.xml
-            java -cp automatedEkstazi/src/main/java com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
+            java -cp src/main/java updatePomXml "$group_id" "$artifact_id" "$version"
 
             # Test with Ekstazi
             cd "$artifact_id"
@@ -51,4 +51,4 @@ jobs:
           done
 
       - name: Clean up
-        run: rm -f automatedEkstazi/src/main/java/com/example/PomFileUpdater.class
+        run: rm -f src/main/java/com/example/PomFileUpdater.class
