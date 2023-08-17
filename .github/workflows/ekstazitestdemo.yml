@@ -20,7 +20,7 @@ jobs:
           java-version: '11'
 
       - name: Compile Java program
-        run: javac src/main/java/com/example/PomFileUpdater.java
+        run: javac $GITHUB_WORKSPACE/automatedEkstazi/src/main/java/com/example/PomFileUpdater.java
 
       - name: Generate, Update Pom.xml, and Test Projects with Ekstazi
         run: |
@@ -37,19 +37,18 @@ jobs:
             group_id="${project_info[0]}"
             artifact_id="${project_info[1]}"
             version="${project_info[2]}"
-            
-      - name: Create project
-        run: mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
-      - name: Run Java program to update pom.xml
-        run: java -cp "$GITHUB_WORKSPACE/automatedEkstazi/src/main/java" com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
-            
-      - name: Test with Ekstazi
-        run: |
-          cd "$artifact_id"
-          mvn ekstazi:ekstazi
-          cd ..
+            echo "Creating project: $group_id - $artifact_id - $version"
+            mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+            echo "Running Java program to update pom.xml"
+            java -cp "$GITHUB_WORKSPACE/automatedEkstazi/src/main/java" com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
+
+            echo "Testing with Ekstazi"
+            cd "$artifact_id"
+            mvn ekstazi:ekstazi
+            cd ..
           done
 
       - name: Clean up
-        run: rm -f src/main/java/com/example/PomFileUpdater.class
+        run: rm -f $GITHUB_WORKSPACE/automatedEkstazi/src/main/java/com/example/PomFileUpdater.class
