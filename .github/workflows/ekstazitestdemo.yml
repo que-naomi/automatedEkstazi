@@ -42,7 +42,7 @@ jobs:
             mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
             # Run Java program to update pom.xml
-            java -cp src/main/java updatePomXml "$group_id" "$artifact_id" "$version"
+            java -cp src/main/java/com/example/PomFileUpdater "$group_id" "$artifact_id" "$version"
 
             # Test with Ekstazi
             cd "$artifact_id"
