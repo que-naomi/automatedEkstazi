@@ -39,7 +39,7 @@ jobs:
             version="${project_info[2]}"
 
             echo "Creating project: $group_id - $artifact_id - $version"
-            mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+            mvn archetype:generate -DgroupId="com."+"$group_id" -DartifactId="com."+"$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
             echo "Running Java program to update pom.xml"
             java -cp "src/main/java" com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
