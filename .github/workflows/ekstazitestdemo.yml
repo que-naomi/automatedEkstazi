@@ -37,18 +37,18 @@ jobs:
             group_id="${project_info[0]}"
             artifact_id="${project_info[1]}"
             version="${project_info[2]}"
+            
+      - name: Create project
+        run: mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
 
-            # Create project
-            mvn archetype:generate -DgroupId="$group_id" -DartifactId="$artifact_id" -Dversion="$version" -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
-
-            # Run Java program to update pom.xml
-            java -cp "$GITHUB_WORKSPACE/automatedEkstazi/src/main/java" com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
-
-
-            # Test with Ekstazi
-            cd "$artifact_id"
-            mvn ekstazi:ekstazi
-            cd ..
+      - name: Run Java program to update pom.xml
+        run: java -cp "$GITHUB_WORKSPACE/automatedEkstazi/src/main/java" com.example.PomFileUpdater "$group_id" "$artifact_id" "$version"
+            
+      - name: Test with Ekstazi
+        run: |
+          cd "$artifact_id"
+          mvn ekstazi:ekstazi
+          cd ..
           done
 
       - name: Clean up
